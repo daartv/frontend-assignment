@@ -124,10 +124,11 @@ const App = () => {
               return <p>There seems to have been a problem</p>;
             }
             setLoading(false);
-            return data.search.edges.map(edge => (
+            return data.search.edges.map((edge, index) => (
               <div
                 onClick={() => goToResult(edge.node.href)}
                 className="result"
+                key={index}
               >
                 <span className="label">{edge.node.displayLabel}</span>
                 <img
