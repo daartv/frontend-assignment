@@ -4,6 +4,7 @@ import App from "./App";
 import ApolloClient from "apollo-boost";
 import { ApolloProvider } from "react-apollo";
 import "./index.css";
+import "bootstrap/dist/css/bootstrap.css";
 
 const client = new ApolloClient({
   uri: "https://metaphysics-production.artsy.net"

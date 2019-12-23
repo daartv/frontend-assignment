@@ -6,27 +6,35 @@ import "./App.css";
 
 const GET_SEARCH_RESULTS = gql`
   query getSearchResults($searchTerm: String!, $searchFilters: [SearchEntity]) {
-    search(query: $searchTerm, first: 2, entities: $searchFilters) {
+    search(query: $searchTerm, first: 10, entities: $searchFilters) {
       edges {
         node {
           displayLabel
+          imageUrl
+          href
         }
       }
     }
   }
 `;
 
+const goToResult = (href) => {
+  window.location.href = href;
+}
+
 const App = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [searchFilters, setSearchFilters] = useState([]);
   return (
-    <div className="root">
+    <div className="container root">
       <div className="searchBar">
-        <img height="20px" width="20" src={searchIcon} />
+        <img className="searchIcon" height="20px" width="20" src={searchIcon} />
         <input
+          className="input"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          size="100"
+          size="50"
+          placeholder="Search by artist, gallery, theme, style, theme, tag, etc."
         />
       </div>
       <div className="filters">
@@ -82,13 +90,19 @@ const App = () => {
         </div>
       </div>
       <pre style={{ whiteSpace: "pre-wrap" }}>
-        <Query query={GET_SEARCH_RESULTS} variables={{ searchTerm, searchFilters }}>
+        <Query
+          query={GET_SEARCH_RESULTS}
+          variables={{ searchTerm, searchFilters }}
+        >
           {({ loading, error, data }) => {
             if (loading) return <p>Loading...</p>;
             if (error) return <p>Error :(</p>;
             console.log(data);
             return data.search.edges.map(edge => (
-              <div>{edge.node.displayLabel}</div>
+              <div onClick={() => goToResult(edge.node.href)} className="result">
+                <span className="label">{edge.node.displayLabel}</span>
+                <img className="resultImage" height="40" width="40" src={edge.node.imageUrl} />
+              </div>
             ));
           }}
         </Query>
