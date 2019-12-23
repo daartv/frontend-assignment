@@ -1,7 +1,10 @@
+/* eslint-disable jsx-a11y/alt-text */
 import React, { useState } from "react";
 import { gql } from "apollo-boost";
 import { Query } from "react-apollo";
 import searchIcon from "./magnifying-glass.svg";
+import clearIcon from "./clear.svg";
+import loadingIcon from "./loading-indicator.svg";
 import "./App.css";
 
 const GET_SEARCH_RESULTS = gql`
@@ -18,13 +21,14 @@ const GET_SEARCH_RESULTS = gql`
   }
 `;
 
-const goToResult = (href) => {
+const goToResult = href => {
   window.location.href = href;
-}
+};
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchFilters, setSearchFilters] = useState([]);
+  const [isLoading, setLoading] = useState(false);
   return (
     <div className="container root">
       <div className="searchBar">
@@ -36,6 +40,22 @@ const App = () => {
           size="50"
           placeholder="Search by artist, gallery, theme, style, theme, tag, etc."
         />
+        {isLoading ? (
+          <img
+            className="loading"
+            height="20px"
+            width="20"
+            src={loadingIcon}
+          />
+        ) : (
+          <img
+            onClick={() => setSearchTerm('')}
+            className="searchIcon"
+            height="20px"
+            width="20"
+            src={clearIcon}
+          />
+        )}
       </div>
       <div className="filters">
         <div
@@ -95,13 +115,27 @@ const App = () => {
           variables={{ searchTerm, searchFilters }}
         >
           {({ loading, error, data }) => {
-            if (loading) return <p>Loading...</p>;
-            if (error) return <p>Error :(</p>;
-            console.log(data);
+            if (loading) {
+              setLoading(true);
+              return <div/>;
+            }
+            if (error) {
+              setLoading(false);
+              return <p>There seems to have been a problem</p>;
+            }
+            setLoading(false);
             return data.search.edges.map(edge => (
-              <div onClick={() => goToResult(edge.node.href)} className="result">
+              <div
+                onClick={() => goToResult(edge.node.href)}
+                className="result"
+              >
                 <span className="label">{edge.node.displayLabel}</span>
-                <img className="resultImage" height="40" width="40" src={edge.node.imageUrl} />
+                <img
+                  className="resultImage"
+                  height="40"
+                  width="40"
+                  src={edge.node.imageUrl}
+                />
               </div>
             ));
           }}
